@@ -10,12 +10,12 @@ from pathlib import Path
 from datetime import datetime
 import logging
 
-from langchain.schema import Document
-from langchain.text_splitter import (
+from langchain_core.documents import Document
+from langchain_text_splitters import (
     RecursiveCharacterTextSplitter,
     CharacterTextSplitter,
     TokenTextSplitter,
-    MarkdownTextSplitter
+    MarkdownTextSplitter,
 )
 from langchain_community.document_loaders import (
     PyPDFLoader,

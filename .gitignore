@@ -1,0 +1,119 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+build/
+dist/
+.eggs/
+pip-wheel-metadata/
+
+# =========================
+# Virtual Environment
+# =========================
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+config/.env
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# Data
+# =========================
+
+# Uploaded documents
+data/documents/*
+!data/documents/.gitkeep
+
+# Vector database
+data/vector_store/*
+!data/vector_store/.gitkeep
+
+# Chroma database (if stored elsewhere)
+chroma_db/
+chroma/
+
+# FAISS indexes
+*.faiss
+*.index
+
+# =========================
+# Model Files
+# =========================
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+*.pkl
+*.joblib
+*.model
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+*.ipynb
+
+# =========================
+# Streamlit
+# =========================
+.streamlit/secrets.toml
+
+# Streamlit cache
+.streamlit/cache/
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Type Checking / Lint
+# =========================
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Misc
+# =========================
+.cache/
+temp/
+tmp/

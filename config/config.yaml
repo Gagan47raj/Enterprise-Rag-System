@@ -1,0 +1,64 @@
+# RAG System Configuration
+
+# Model Settings
+models:
+  llm: "mistral"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  ollama_base_url: "http://localhost:11434"
+
+# Vector Store Settings
+vector_store:
+  type: "faiss"
+  dimension: 384
+  index_path: "data/vector_store/faiss_index"
+  metric: "cosine"
+
+# Retrieval Settings
+retrieval:
+  k_retrieval: 10
+  fetch_k: 20
+  similarity_threshold: 0.7
+  
+# MultiQuery Settings
+multi_query:
+  num_queries: 3
+  include_original: true
+
+# Parent Document Settings
+parent_document:
+  child_chunk_size: 500
+  child_chunk_overlap: 50
+  parent_chunk_size: 2000
+  parent_chunk_overlap: 200
+
+# BM25 Settings
+bm25:
+  k1: 1.5
+  b: 0.75
+
+# Contextual Compression Settings
+compression:
+  max_tokens: 1000
+  compression_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+# Reranker Settings
+reranker:
+  model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+  top_k: 5
+  score_threshold: 0.5
+
+# Metadata Filtering
+metadata:
+  enabled: true
+  fields:
+    - source
+    - page
+    - doc_type
+    - date
+    - author
+
+# Streamlit Settings
+streamlit:
+  page_title: "Advanced RAG System"
+  page_icon: "🤖"
+  layout: "wide"

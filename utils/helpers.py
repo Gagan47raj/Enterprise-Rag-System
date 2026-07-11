@@ -35,7 +35,11 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
     
     return logging.getLogger(__name__)
 
-def load_config(config_path: str = "config/config.yaml") -> Dict[str, Any]:
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
+
+def load_config(config_path: str = None) -> Dict[str, Any]:
     """
     Load configuration from YAML file
     
@@ -45,6 +49,10 @@ def load_config(config_path: str = "config/config.yaml") -> Dict[str, Any]:
     Returns:
         Configuration dictionary
     """
+
+    if config_path is None:
+        config_path = CONFIG_PATH
+        
     try:
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)

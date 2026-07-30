@@ -11,7 +11,7 @@ project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
 import pytest
-from langchain.schema import Document
+from langchain_core.documents import Document
 from src.vector_store import (
     EmbeddingManager,
     BM25Index,

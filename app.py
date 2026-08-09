@@ -1,187 +1,282 @@
 """
-Advanced RAG System - Streamlit Application
-Phase 3: Vector Store Integration
+Advanced RAG System - Complete Streamlit Application
 """
 import streamlit as st
 import sys
 from pathlib import Path
-import time
 
 # Add project root to Python path
 project_root = Path(__file__).parent
 sys.path.append(str(project_root))
 
-from utils.helpers import load_config
-from src.document_processor import DocumentProcessingPipeline
-from src.vector_store import VectorStoreFactory
+# Import components
+from src.components.sidebar import SidebarComponent
+from src.components.search import SearchComponent
+from src.components.document_explorer import DocumentExplorer
+from src.components.analytics import AnalyticsComponent
+from src.services.session_manager import SessionManager
 
 # Page configuration
 st.set_page_config(
-    page_title="Advanced RAG System - Phase 3",
+    page_title="Advanced RAG System",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/yourusername/advanced-rag-system',
+        'Report a bug': 'https://github.com/yourusername/advanced-rag-system/issues',
+        'About': """
+        # Advanced RAG System
+        
+        Built with:
+        - **LangChain** for orchestration
+        - **FAISS** for vector search
+        - **BM25** for sparse retrieval
+        - **Ollama + Mistral** for LLM
+        - **Streamlit** for UI
+        
+        Features multi-query retrieval, parent document retrieval,
+        contextual compression, reranking, and metadata filtering.
+        """
+    }
 )
 
-# Initialize session state
-if 'vector_store' not in st.session_state:
-    st.session_state.vector_store = None
-if 'documents_processed' not in st.session_state:
-    st.session_state.documents_processed = False
-if 'stats' not in st.session_state:
-    st.session_state.stats = {}
-
-def process_documents():
-    """Process documents and create vector store"""
-    with st.spinner("Processing documents..."):
-        config = load_config()
-        pipeline = DocumentProcessingPipeline(config)
-        
-        # Process documents
-        sample_dir = project_root / 'data' / 'documents'
-        chunks, parents = pipeline.process_directory(
-            str(sample_dir),
-            strategy="recursive",
-            use_parent_child=True,
-            enhance_metadata=True
-        )
-        
-        # Create vector store
-        vector_store = VectorStoreFactory.create_vector_store(
-            store_type="hybrid",
-            config=config
-        )
-        
-        index_path = project_root / 'data' / 'vector_store' / 'main_index'
-        vector_store.index_documents(chunks, str(index_path))
-        
-        st.session_state.vector_store = vector_store
-        st.session_state.documents_processed = True
-        st.session_state.stats = vector_store.get_stats()
-        st.session_state.chunks = chunks
-        
-        return True
+# Custom CSS
+st.markdown("""
+<style>
+    /* Main container */
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    
+    /* Headers */
+    h1 {
+        color: #1f77b4;
+        font-weight: 700;
+    }
+    
+    h2 {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    h3 {
+        color: #34495e;
+    }
+    
+    /* Metrics */
+    [data-testid="stMetricValue"] {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f77b4;
+    }
+    
+    /* Buttons */
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    
+    .stButton > button[kind="primary"] {
+        background-color: #1f77b4;
+    }
+    
+    /* Expander */
+    .streamlit-expanderHeader {
+        font-weight: 600;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    /* Search bar */
+    [data-testid="stTextInput"] input {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 0.5rem 1rem;
+        font-size: 1.1rem;
+    }
+    
+    [data-testid="stTextInput"] input:focus {
+        border-color: #1f77b4;
+        box-shadow: 0 0 0 2px rgba(31, 119, 180, 0.2);
+    }
+    
+    /* Cards */
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    /* Progress bar */
+    .stProgress > div > div {
+        background-color: #1f77b4;
+    }
+    
+    /* Sidebar */
+    .css-1d391kg {
+        background-color: #f8f9fa;
+    }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 def main():
-    """Main Streamlit application"""
+    """Main application"""
     
-    # Sidebar
-    with st.sidebar:
-        st.title("🎛️ Configuration")
-        st.markdown("---")
-        
-        # System Status
-        st.subheader("📊 System Status")
-        if st.session_state.documents_processed:
-            st.success("Documents Indexed ✅")
-            stats = st.session_state.stats
-            st.metric("FAISS Vectors", stats.get('faiss_index_size', 0))
-            st.metric("BM25 Docs", stats.get('bm25_doc_count', 0))
-            st.metric("Embedding Dim", stats.get('embedding_dimension', 0))
-        else:
-            st.warning("No documents indexed")
-            if st.button("🚀 Process Documents", use_container_width=True):
-                if process_documents():
-                    st.rerun()
-        
-        st.markdown("---")
-        
-        # Search Settings
-        st.subheader("🔍 Search Settings")
-        search_type = st.selectbox(
-            "Search Type",
-            ["hybrid", "similarity", "mmr", "bm25"],
-            help="Select search strategy"
-        )
-        
-        k_docs = st.slider(
-            "Number of results",
-            min_value=1,
-            max_value=10,
-            value=3,
-            help="Number of documents to retrieve"
-        )
-        
-        if search_type == "hybrid":
-            alpha = st.slider(
-                "Dense/Sparse Balance (α)",
-                min_value=0.0,
-                max_value=1.0,
-                value=0.5,
-                help="0 = BM25 only, 1 = FAISS only"
-            )
+    # Initialize session state
+    SessionManager.initialize_session()
     
-    # Main content area
-    st.title("🚀 Advanced RAG System")
+    # Render sidebar
+    SidebarComponent.render()
+    
+    # Main content area with tabs
+    st.markdown(
+        """
+        <div style='text-align: center; padding: 1rem 0;'>
+            <h1 style='font-size: 2.5rem; margin-bottom: 0.5rem;'>
+                🤖 Advanced RAG System
+            </h1>
+            <p style='color: #666; font-size: 1.1rem;'>
+                Intelligent Document Retrieval with Multi-Strategy Search
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Navigation tabs
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "🔍 Search", 
+        "📚 Document Explorer", 
+        "📊 Analytics",
+        "ℹ️ Help"
+    ])
+    
+    with tab1:
+        SearchComponent.render()
+    
+    with tab2:
+        DocumentExplorer.render()
+    
+    with tab3:
+        AnalyticsComponent.render()
+    
+    with tab4:
+        render_help()
+    
+    # Footer
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style='text-align: center; color: #999; padding: 1rem 0;'>
+            <p>Advanced RAG System v1.0 | Built with LangChain, FAISS, BM25, Ollama & Streamlit</p>
+            <p style='font-size: 0.8rem;'>
+                © 2024 Advanced RAG System. All rights reserved.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def render_help():
+    """Render help page"""
+    st.title("ℹ️ Help & Documentation")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        ### 🚀 Getting Started
+        
+        1. **Initialize System**
+           - Click 'Initialize System' in the sidebar
+           - Wait for embedding model to load
+        
+        2. **Upload Documents**
+           - Use the file uploader in the sidebar
+           - Supported formats: PDF, TXT, DOCX, CSV
+           - Click 'Process Documents' to index
+        
+        3. **Search**
+           - Enter your query in the search box
+           - Configure retrieval options in sidebar
+           - View results with relevance scores
+        
+        ### 🔧 Search Strategies
+        
+        - **Hybrid**: Combines dense (FAISS) and sparse (BM25) retrieval
+        - **Similarity**: Pure vector similarity search
+        - **MMR**: Maximum Marginal Relevance for diversity
+        - **BM25**: Keyword-based sparse retrieval
+        """)
+    
+    with col2:
+        st.markdown("""
+        ### ⚡ Advanced Features
+        
+        - **MultiQuery Retrieval**: Generates multiple query variations for better recall
+        - **Contextual Compression**: Filters out irrelevant content
+        - **Reranker**: Re-ranks results using cross-encoder models
+        - **Metadata Filtering**: Filter documents by metadata fields
+        
+        ### 📊 System Components
+        
+        | Component | Technology |
+        |-----------|-----------|
+        | Embeddings | Sentence Transformers |
+        | Vector Store | FAISS |
+        | Sparse Index | BM25 |
+        | LLM | Ollama + Mistral |
+        | Reranker | Cross-Encoder |
+        | UI | Streamlit |
+        
+        ### 🛠️ Troubleshooting
+        
+        - **System won't initialize**: Check Ollama is running
+        - **No results**: Try adjusting search strategy
+        - **Slow performance**: Reduce documents or use simpler search
+        - **Memory issues**: Process fewer documents at once
+        """)
+    
     st.markdown("---")
     
-    # Query Interface
-    st.subheader("💬 Query Interface")
+    # Quick tips
+    st.subheader("💡 Quick Tips")
     
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        query = st.text_input(
-            "Enter your query:",
-            placeholder="Ask something about the documents...",
-            key="query_input"
-        )
-    with col2:
-        search_button = st.button("🔍 Search", use_container_width=True)
+    tips = [
+        "📄 Start with small documents to test the system",
+        "🔍 Use specific queries for better results",
+        "⚡ Enable MultiQuery for ambiguous queries",
+        "🎯 Use metadata filtering to narrow results",
+        "📊 Check Analytics for performance insights",
+        "🗑️ Clear documents to start fresh"
+    ]
     
-    # Search Results
-    if search_button and query:
-        if not st.session_state.documents_processed:
-            st.error("Please process documents first using the sidebar button!")
-        else:
-            with st.spinner("Searching..."):
-                start_time = time.time()
-                
-                # Perform search
-                results = st.session_state.vector_store.search(
-                    query,
-                    k=k_docs,
-                    search_type=search_type,
-                    alpha=alpha if search_type == "hybrid" else 0.5,
-                    return_scores=True
-                )
-                
-                end_time = time.time()
-                search_time = end_time - start_time
-                
-                # Display results
-                st.markdown(f"### 📝 Results ({len(results)} found in {search_time:.3f}s)")
-                
-                for i, (doc, score) in enumerate(results, 1):
-                    with st.expander(f"Result {i} - Score: {score:.4f}", expanded=(i==1)):
-                        st.markdown(doc.page_content)
-                        
-                        # Metadata
-                        if doc.metadata:
-                            st.markdown("**Metadata:**")
-                            cols = st.columns(3)
-                            meta_items = list(doc.metadata.items())[:6]
-                            for j, (key, value) in enumerate(meta_items):
-                                with cols[j % 3]:
-                                    st.caption(f"{key}: {value}")
-    
-    # Document Overview
-    if st.session_state.documents_processed:
-        st.markdown("---")
-        st.subheader("📚 Document Overview")
-        
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.metric("Total Chunks", len(st.session_state.chunks))
-        with col2:
-            st.metric("Vector Dimension", st.session_state.stats.get('embedding_dimension', 0))
-        with col3:
-            st.metric("Avg Chunk Size", 
-                     f"{sum(len(c.page_content) for c in st.session_state.chunks) // len(st.session_state.chunks)} chars")
-        
-        # Show sample chunks
-        st.markdown("**Sample Chunks:**")
-        for i, chunk in enumerate(st.session_state.chunks[:3], 1):
-            st.text_area(f"Chunk {i}", chunk.page_content[:200] + "...", height=100)
+    cols = st.columns(3)
+    for i, tip in enumerate(tips):
+        with cols[i % 3]:
+            st.info(tip)
 
 if __name__ == "__main__":
     main()

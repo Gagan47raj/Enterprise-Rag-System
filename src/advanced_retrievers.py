@@ -6,16 +6,16 @@ import os
 import time
 import hashlib
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 from pathlib import Path
 
 import numpy as np
-from langchain.schema import Document
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_classic.schema import Document
+from langchain_classic.prompts import PromptTemplate
+from langchain_classic.chains import LLMChain
 from langchain_community.llms import Ollama
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
+from langchain_classic.retrievers import ContextualCompressionRetriever
 from sentence_transformers import CrossEncoder
 
 from utils.helpers import load_config, timer_decorator

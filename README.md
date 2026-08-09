@@ -614,10 +614,10 @@ If you use this system in your research or project, please cite:
 ```
 @software{advanced_rag_system,
   title = {Advanced RAG System},
-  author = {Your Name},
-  year = {2024},
+  author = {Gagan Rajput},
+  year = {2026},
   description = {A comprehensive RAG system with multi-strategy retrieval},
-  url = {https://github.com/yourusername/advanced-rag-system}
+  url = {https://github.com/Gagan47raj/advanced-rag-system}
 }
 ```
 
